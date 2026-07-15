@@ -31,34 +31,59 @@
         <java.version>21</java.version>
     </properties>
     <dependencies>
+        <!-- Redis 数据访问 starter：提供 RedisTemplate、连接池、序列化等能力，用于缓存、会话、分布式锁等场景 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+        <!-- 参数校验 starter：基于 JSR-380 (Bean Validation)，配合 @Valid、@NotBlank、@Size 等注解做接口入参校验 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <!-- Web MVC starter：包含 Spring MVC、Tomcat、Jackson 等，提供 REST 接口和 JSON 序列化能力 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- PostgreSQL 驱动：运行时 JDBC 驱动，连接 Postgres 数据库使用 -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!-- Lombok：通过注解自动生成 getter/setter/toString/构造方法等样板代码，编译期生效 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- 测试 starter：整合 JUnit 5、Mockito、AssertJ 等，用于编写单元测试和集成测试 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+
+        <!-- Flyway 核心库：数据库版本化管理工具，自动执行 db/migration 下的 SQL 脚本 -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <!-- Flyway PostgreSQL 适配器：Flyway 10+ 拆分出来的 Postgres 专用插件，必须配套 core 使用 -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
+        <!-- JDBC 数据访问 starter：提供 DataSource、Connection、JdbcTemplate 等核心 JDBC 能力，是 JdbcTemplate/MyBatis 等 ORM 框架的基础依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

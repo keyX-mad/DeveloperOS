@@ -27,3 +27,8 @@ Thumbs.db
 
 # Docker
 docker/.env
+
+# Everyday Update（开发日志，不上传 GitHub）
+everyday update/
+everyday-update/
+DAILY-UPDATE.md
