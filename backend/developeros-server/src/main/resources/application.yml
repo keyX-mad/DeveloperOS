@@ -1,0 +1,25 @@
+spring:
+
+  profiles:
+    active: local
+
+  application:
+    name: developeros-server
+
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5432/${POSTGRES_DB:developeros}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+
+
+server:
+  port: ${SERVER_PORT:9090}

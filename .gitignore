@@ -16,6 +16,14 @@ dist/
 .env
 .env.local
 
+# Spring Boot Local Config
+application-local.yml
+application-local.yaml
+application-local.properties
+
 # OS
 .DS_Store
 Thumbs.db
+
+# Docker
+docker/.env

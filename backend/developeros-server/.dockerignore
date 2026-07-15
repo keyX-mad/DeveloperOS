@@ -1,0 +1,37 @@
+# 构建时不需要的文件，避免打入镜像
+
+# Maven 构建产物
+target/
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+
+# Git
+.git/
+.gitignore
+
+# 文档
+*.md
+README.md
+HELP.md
+
+# 日志
+*.log
+
+# 本地配置
+application-local.yml
+application-local.yaml
+application-local.properties
+
+# 临时文件
+*.tmp
+*.bak
