@@ -84,6 +84,56 @@
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
 
+        <!-- MyBatis-Plus（Spring Boot 3 专用 starter）：MyBatis 增强工具，提供通用 CRUD、分页插件、代码生成器、逻辑删除等能力，简化持久层开发 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus</artifactId>
+            <version>3.5.5</version>
+        </dependency>
+
+        <!-- MyBatis-Plus 扩展包：包含分页插件（PaginationInnerInterceptor）、动态表名、SQL 注入器等高级功能 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-extension</artifactId>
+            <version>3.5.5</version>
+        </dependency>
+
+        <!-- MyBatis-Spring 桥接包：提供 @MapperScan 注解和 MapperScannerRegistrar，
+             mybatis-plus 3.5.9 聚合包未传递此依赖，需要显式引入才能用 @MapperScan -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>3.0.5</version>
+        </dependency>
+
+        <!-- Spring Security：认证授权框架，提供登录校验、密码加密（BCryptPasswordEncoder）、权限控制、CSRF 防护等安全能力 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- JJWT API：JWT 生成/解析的接口层 -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+        <!-- JJWT Impl：JJWT 运行时实现 -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- JJWT Jackson：JJWT 的 JSON 序列化支持（基于 Jackson） -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
     </dependencies>
 
     <build>

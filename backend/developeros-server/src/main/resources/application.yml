@@ -23,3 +23,7 @@ spring:
 
 server:
   port: ${SERVER_PORT:9090}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:604800000}  # 默认 7 天
