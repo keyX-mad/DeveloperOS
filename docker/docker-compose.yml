@@ -69,6 +69,14 @@ services:
       SERVER_PORT: 9090
       # 容器内禁用 local profile（容器用环境变量，不读 application-local.yml）
       SPRING_PROFILES_ACTIVE: default
+      # JWT
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      # AI 大模型
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL}
+      OPENAI_MODEL: ${OPENAI_MODEL}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL}
 
     ports:
       - "9090:9090"

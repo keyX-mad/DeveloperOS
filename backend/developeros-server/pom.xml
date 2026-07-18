@@ -29,7 +29,23 @@
     </scm>
     <properties>
         <java.version>21</java.version>
+        <!-- Spring AI 版本：1.0.x 兼容 Spring Boot 3.x，2.0.x 需要 Spring Boot 4.x -->
+        <spring-ai.version>1.0.3</spring-ai.version>
     </properties>
+
+    <!-- Spring AI BOM：统一管理所有 Spring AI 相关依赖的版本 -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <!-- Redis 数据访问 starter：提供 RedisTemplate、连接池、序列化等能力，用于缓存、会话、分布式锁等场景 -->
         <dependency>
@@ -131,6 +147,13 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.12.6</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- Spring AI OpenAI Starter：自动装配 OpenAiChatModel / OpenAiEmbeddingModel 等，
+             Chat Module 会用到 ChatClient 做 AI 对话，Knowledge Module 会用到 EmbeddingModel 做 RAG -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
         </dependency>
 
 

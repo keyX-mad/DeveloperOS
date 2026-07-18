@@ -32,3 +32,6 @@ docker/.env
 everyday update/
 everyday-update/
 DAILY-UPDATE.md
+
+# AI 工具配置（Claude Code 索引文件，不上传）
+.claude/

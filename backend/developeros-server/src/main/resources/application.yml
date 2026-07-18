@@ -27,3 +27,41 @@ server:
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:604800000}  # 默认 7 天
+
+
+# ============================================
+# Spring AI 配置（OpenAI Compatible）
+# Chat / Memory / RAG 模块都要用
+# ============================================
+spring.ai:
+  openai:
+    # API Key 从环境变量读，绝不写死
+    api-key: ${OPENAI_API_KEY}
+    # base-url 默认 OpenAI 官方，主人可以改成其他兼容服务（Azure、代理、其他厂商）
+    base-url: ${OPENAI_BASE_URL:https://api.deepseek.com}
+    chat:
+      # 默认模型，主人可以根据需要改（gpt-4o / gpt-4o-mini / gpt-3.5-turbo）
+      options:
+        model: ${OPENAI_MODEL:deepseek-v4-flash}
+        temperature: 0.7
+    embedding:
+      # 向量模型，RAG 用
+      options:
+        model: ${OPENAI_EMBEDDING_MODEL:text-embedding-v4}
+
+
+# ============================================
+# AI 应用配置（业务相关）
+# ============================================
+developer:
+  ai:
+    # AI 系统提示词（定义 AI 角色和行为）
+    system-prompt: |
+      你是 DeveloperOS 的 AI 助手，专门帮助开发者学习和成长。
+      你的特点是：
+      1. 用通俗易懂的中文回答
+      2. 代码示例要简洁、可运行
+      3. 遇到复杂概念用类比说明
+      4. 不确定的事会诚实告知
+    # Prompt 携带的历史消息数
+    history-size: 20

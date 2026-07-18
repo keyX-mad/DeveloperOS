@@ -21,7 +21,8 @@ import javax.sql.DataSource;
 @Configuration
 @MapperScan({
     "com.keyx.module.user.mapper",
-    "com.keyx.module.auth.mapper"
+    //"com.keyx.module.auth.mapper",
+    "com.keyx.module.chat.mapper"
 })
 public class MybatisPlusConfig {
 
