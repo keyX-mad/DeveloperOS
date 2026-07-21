@@ -33,7 +33,7 @@
         <spring-ai.version>1.0.3</spring-ai.version>
     </properties>
 
-    <!-- Spring AI BOM：统一管理所有 Spring AI 相关依赖的版本 -->
+    <!-- Spring AI BOM -->
     <dependencyManagement>
         <dependencies>
             <dependency>

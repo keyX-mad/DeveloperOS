@@ -42,10 +42,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // ③ 解析用户信息
         Claims claims = jwtUtil.parse(token);
-        String userId = claims.getSubject();
+        Long userId;
+        try {
+            userId = Long.parseLong(claims.getSubject());
+        } catch (NumberFormatException e) {
+            // 防御：JWT subject 不是合法数字时直接拒绝
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":401,\"message\":\"Token 无效\"}");
+            return;
+        }
+
         String username = claims.get("username", String.class);
 
-        // ④ 设置到 SecurityContext
+        // ④ 设置到 SecurityContext（注意：principal 改成 Long）
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
         SecurityContextHolder.getContext().setAuthentication(authentication);

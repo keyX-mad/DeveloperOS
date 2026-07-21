@@ -1,7 +1,10 @@
 package com.keyx;
 
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 /**
  * 应用启动入口
@@ -15,5 +18,4 @@ public class DeveloperosServerApplication {
     public static void main(String[] args) {
         SpringApplication.run(DeveloperosServerApplication.class, args);
     }
-
 }

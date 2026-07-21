@@ -7,45 +7,75 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * 安全相关配置
- * <p>
- * 这里集中注册安全相关的 Bean，避免散落在各个业务模块中。
- * 当前主要用于提供密码编码器，供 AuthService 等模块做密码加密与校验。
+ *
+ * - 提供 BCryptPasswordEncoder Bean（供 AuthService 加密密码）
+ * - 配置 SecurityFilterChain（Spring Security 过滤规则）
+ * - 接入 JwtAuthenticationFilter（解析请求头的 JWT）
+ *
+ * 路由规则：
+ * - /api/auth/**              公开（注册、登录）
+ * - /api/chat/stream         需要认证（SSE 流式对话，POST）
+ * - /api/chat/abort/**       需要认证（用户停止生成）
+ * - /api/chat/**             需要认证（其他 Chat 接口）
+ * - 任何其他请求             需要认证
  */
 @Configuration
 public class SecurityConfig {
 
     /**
+     * JWT 过滤器（需要注入到 SecurityFilterChain）
+     */
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
+    /**
      * BCrypt 密码编码器
-     * <p>
-     * BCrypt 是 Spring Security 官方推荐的密码哈希算法：
-     * - 单向加密（不可逆）
-     * - 自动加盐（同一个密码每次加密结果都不同）
-     * - 可调强度（默认 cost = 10）
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Spring Security 过滤器链配置
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())                          // ① 禁用 CSRF
+                // ① 禁用 CSRF（前后端分离项目不需要）
+                .csrf(csrf -> csrf.disable())
+
+                // ② 无状态 Session（用 JWT，不用 Session）
                 .sessionManagement(s -> s.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS                    // ② 无状态 Session
+                        SessionCreationPolicy.STATELESS
                 ))
+
+                // ③ 配置路由权限
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()        // ③ 放行 Auth 接口
-                        .anyRequest().authenticated()                       // ④ 其他接口需要认证
+                        // 公开接口（注册、登录）
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // 其他所有请求都需要认证
+                        // （包括 /api/chat/**，JWT 过滤器会从 header 抠 token）
+                        .anyRequest().authenticated()
                 )
-                .formLogin(form -> form.disable())                     // ⑤ 禁用表单登录
-                .httpBasic(basic -> basic.disable());                   // ⑥ 禁用 HTTP Basic
+
+                // ④ 禁用表单登录
+                .formLogin(form -> form.disable())
+
+                // ⑤ 禁用 HTTP Basic
+                .httpBasic(basic -> basic.disable())
+
+                // ⑥ 接入 JWT 过滤器（在 UsernamePasswordAuthenticationFilter 之前）
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
-
 }

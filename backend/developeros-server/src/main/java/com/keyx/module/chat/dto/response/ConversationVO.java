@@ -1,6 +1,10 @@
 package com.keyx.module.chat.dto.response;
 
+import com.keyx.module.chat.enums.ConversationStatus;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -26,6 +30,9 @@ import java.time.LocalDateTime;
  * - createdAt：会话创建时间
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ConversationVO {
 
     /**
@@ -44,10 +51,10 @@ public class ConversationVO {
     private String modelName;
 
     /**
-     * 会话状态
-     * V1 暂用 String，后续可改为枚举
+     * 会话状态（枚举：active / archived）
+     * 通过 @JsonValue 输出小写字符串
      */
-    private String status;
+    private ConversationStatus status;
 
     /**
      * 最后一条消息的时间

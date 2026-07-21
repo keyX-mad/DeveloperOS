@@ -6,6 +6,7 @@ import com.keyx.common.exception.BusinessException;
 import com.keyx.module.chat.dto.request.CreateConversationRequest;
 import com.keyx.module.chat.dto.request.UpdateConversationRequest;
 import com.keyx.module.chat.entity.Conversation;
+import com.keyx.module.chat.enums.ConversationStatus;
 import com.keyx.module.chat.mapper.ConversationMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +57,7 @@ class ConversationServiceImplTest {
         c.setId(id);
         c.setUserId(userId);
         c.setTitle("测试会话");
-        c.setStatus("active");
+        c.setStatus(ConversationStatus.ACTIVE);
         return c;
     }
 
@@ -81,7 +82,7 @@ class ConversationServiceImplTest {
         assertNotNull(result);
         assertEquals(1L, result.getUserId());
         assertEquals("我的会话", result.getTitle());
-        assertEquals("active", result.getStatus());
+        assertEquals(ConversationStatus.ACTIVE, result.getStatus());
 
         // 验证：mapper.insert 被调用了
         verify(conversationMapper).insert(any(Conversation.class));
@@ -125,31 +126,28 @@ class ConversationServiceImplTest {
 
     /**
      * 场景：分页查询
-     * 期望：调用 mapper.selectPage，过滤了 userId
+     * 期望：调用 mapper.selectByUserIdPaged（手写 SQL），用 lambdaQuery().count() 算 total
+     * 注：因 MyBatis-Plus selectList 触发 OGNL，records 用 @Select 手写
      */
     @Test
     void testList() {
         // Arrange：准备 mock 返回值
         Conversation c1 = buildConversation(1L, 1L);
         Conversation c2 = buildConversation(2L, 1L);
-        Page<Conversation> mockPage = new Page<>(1, 10);
-        mockPage.setRecords(Arrays.asList(c1, c2));
-        mockPage.setTotal(2L);
 
-        when(conversationMapper.selectPage(any(Page.class), any())).thenReturn(mockPage);
+        when(conversationMapper.selectByUserIdPaged(any(Long.class), anyInt(), anyLong()))
+                .thenReturn(Arrays.asList(c1, c2));
 
         // Act
         Page<Conversation> result = service.list(1L, 1, 10);
 
         // Assert
-        assertEquals(2L, result.getTotal());
         assertEquals(2, result.getRecords().size());
+        assertEquals(1, result.getCurrent());
+        assertEquals(10, result.getSize());
 
-        // 验证：mapper 被调用时带了 userId 过滤条件
-        ArgumentCaptor<Page<Conversation>> pageCaptor = ArgumentCaptor.forClass(Page.class);
-        verify(conversationMapper).selectPage(pageCaptor.capture(), any());
-        assertEquals(1, pageCaptor.getValue().getCurrent());
-        assertEquals(10, pageCaptor.getValue().getSize());
+        // 验证：手写 SQL 被调用
+        verify(conversationMapper, times(1)).selectByUserIdPaged(1L, 10, 0L);
     }
 
     // ============================================

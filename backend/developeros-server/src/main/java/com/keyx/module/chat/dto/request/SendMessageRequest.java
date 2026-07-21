@@ -22,7 +22,7 @@ public class SendMessageRequest {
      * 长度限制 10000 字符（V1 临时值，后续可调）
      */
     @NotBlank(message = "消息内容不能为空")
-    @Size(max = 10000, message = "消息内容过长")
+    @Size(max = 32000, message = "消息内容过长（最长 32000 字符）")
     private String content;
 
     /**

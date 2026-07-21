@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.keyx.module.chat.enums.ConversationStatus;
 import lombok.Data;
 
 import java.time.Instant;
@@ -58,9 +59,9 @@ public class Conversation {
      * 会话状态
      * 数据库用 VARCHAR + CHECK 约束
      * 值：active（正常）/ archived（归档）
-     * V1 暂用 String，后续可改为枚举
+     * Java 端用枚举 ConversationStatus，通过 @EnumValue 自动存小写字符串
      */
-    private String status;
+    private ConversationStatus status;
 
     /**
      * 最后一条消息时间（派生字段）

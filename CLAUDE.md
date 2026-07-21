@@ -35,7 +35,7 @@ DeveloperOS 是一款面向开发者的 **AI 原生成长操作系统（AI Nativ
 
 ### 技术栈一句话总览
 
-- 后端：Spring Boot 3.5 + Java 21 + MyBatis-Plus 3.5.5 + Spring Security + JJWT + Flyway + Maven
+- 后端：Spring Boot 3.5.0 + Java 21 + MyBatis-Plus 3.5.5（锁定）+ Spring Security + JJWT + Flyway + Maven + Spring AI 1.0.3
 - 前端：Vue3 + TypeScript + Pinia + Vue Router + Element Plus + Axios（**待开发**）
 - 数据：PostgreSQL 17 + pgvector + Redis 7
 - 部署：Docker Compose
@@ -84,7 +84,7 @@ graph TD
     H --> H3["security (JWT / SecurityConfig / Filter)"];
     H --> H4["module.user (已完成)"];
     H --> H5["module.auth (已完成)"];
-    H --> H6["module.chat (待开发)"];
+    H --> H6["module.chat (✅ 端到端验证通过)"];
     H --> H7["module.memory (待开发)"];
     H --> H8["module.knowledge (待开发)"];
     H --> H9["module.growth (待开发)"];
@@ -160,7 +160,7 @@ subject: 中文或英文简短描述
 
 | 模块路径                                        | 状态            | 一句话职责                                                                 | 模块 CLAUDE.md                                                  |
 | ----------------------------------------------- | --------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `backend/developeros-server`                    | 活跃 / 部分完成 | Spring Boot 主服务（Auth、User 已完成，Chat/Memory/RAG/Growth 待开发）       | [developeros-server/CLAUDE.md](./backend/developeros-server/CLAUDE.md) |
+| `backend/developeros-server`                    | 活跃 / 持续开发 | Spring Boot 主服务（Auth + User + Chat 已完成，Memory/RAG/Growth 待开发）     | [developeros-server/CLAUDE.md](./backend/developeros-server/CLAUDE.md) |
 | `backend/`                                      | 目录占位        | 后端总目录，未来可能拆出多个服务                                           | [backend/CLAUDE.md](./backend/CLAUDE.md)                       |
 | `frontend/`                                     | 占位            | 前端项目目录（Vue3 + TS 脚手架待搭建）                                     | [frontend/CLAUDE.md](./frontend/CLAUDE.md)                     |
 | `docs/`                                         | 文档            | 产品愿景、PRD、架构、数据库设计文档                                        | —                                                               |
@@ -177,7 +177,7 @@ subject: 中文或英文简短描述
 | `security`                | 已完成      | JWT 工具、Spring Security 配置、过滤器  |
 | `module.user`             | 已完成      | 用户实体、Mapper、Service                |
 | `module.auth`             | 已完成      | 注册、登录、Token 颁发                  |
-| `module.chat`             | 待开发      | AI 对话（多轮 / SSE / Prompt 组装）     |
+| `module.chat`             | ✅ 已完成（端到端验证通过 20/20） | AI 对话（多轮 / SSE / Spring AI / Prompt 组装） |
 | `module.memory`           | 待开发      | 长期记忆提取与检索                      |
 | `module.knowledge`        | 待开发      | RAG 文档/切片/Embedding/检索           |
 | `module.growth`           | 待开发      | 学习目标 / 任务 / 成长日志              |
@@ -255,6 +255,7 @@ docker compose -f docker/docker-compose.yml build backend
 
 | 日期         | 变更内容                                                                                                                          |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-20   | **Chat 模块完成 + 端到端验证通过 20/20**：26 个文件 + 15 项 Review 修复 + 2 个 P0 bug 修复（`created_at` NOT NULL + MyBatis-Plus OGNL 兼容）。锁定版本栈：Spring Boot 3.5.0 + MyBatis-Plus 3.5.5 + MyBatis 3.5.16 + Java 21 + Spring AI 1.0.3。详见 `backend/developeros-server/CLAUDE.md` §9.1 / §9.7。 |
 | 2026-07-18   | 初始化根级 CLAUDE.md，新增 Mermaid 仓库结构图与模块索引；建立 `.claude/index.json` 覆盖率与缺口清单。                              |
 | 2026-07-17   | Auth 模块完成（注册、登录、JWT、过滤器、全局异常、统一响应），详见 `everyday update/2026-07-17-auth-module-completed.md`。         |
 | 2026-07-15   | Docker 全栈环境搭建完成；Spring Boot 后端容器化（两阶段 Dockerfile）；数据库脚本评审 6 项问题，详见 `everyday update/...07-15-...md`。 |

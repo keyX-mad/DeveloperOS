@@ -1,7 +1,5 @@
 package com.keyx.module.chat.prompt;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.keyx.module.chat.entity.Message;
 import com.keyx.module.chat.enums.MessageRole;
 import com.keyx.module.chat.mapper.MessageMapper;
@@ -13,6 +11,7 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -60,7 +59,10 @@ public class PromptBuilder {
         // 4. 历史消息（最近 N 条，按时间正序）
         List<Message> history = loadHistory(conversationId);
         for (Message msg : history) {
-            messages.add(toAiMessage(msg));
+            var aiMsg = toAiMessage(msg);
+            if (aiMsg != null) {
+                messages.add(aiMsg);
+            }
         }
 
         // 5. 当前 user 消息
@@ -70,37 +72,34 @@ public class PromptBuilder {
     }
 
     /**
-     * 从数据库加载最近 N 条历史消息
-     * 按时间正序（聊天从早到晚）
+     * 从数据库加载最近 N 条已完成的历史消息
+     * - 按时间正序（聊天从早到晚）
+     * - 只取 status=COMPLETED 的（过滤 STREAMING/FAILED/STOPPED 中间态）
+     *
+     * ⚠️ Workaround：手写 SQL 绕开 MyBatis-Plus 3.5.5 + MyBatis 3.5.16 OGNL 兼容问题
      */
     private List<Message> loadHistory(Long conversationId) {
-        int size = systemPromptTemplate.getHistorySize() != null
-                ? systemPromptTemplate.getHistorySize()
-                : 20;
+        int size = systemPromptTemplate.getHistorySize();
 
-        Page<Message> page = new Page<>(1, size);
-        Page<Message> result = messageMapper.selectPage(page,
-                new LambdaQueryWrapper<Message>()
-                        .eq(Message::getConversationId, conversationId)
-                        .orderByAsc(Message::getCreatedAt)
-        );
+        // Desc + LIMIT N：手写 SQL（mapper 接口已加 selectRecentCompletedByConversation）
+        List<Message> recent = messageMapper.selectRecentCompletedByConversation(conversationId, size);
 
-        return result.getRecords();
+        // 反转成时间正序（早 → 晚）
+        Collections.reverse(recent);
+        return recent;
     }
 
     /**
      * 把数据库 Message 转换成 Spring AI 的 Message
+     * V1 暂不支持 TOOL 角色（直接跳过）
      */
     private org.springframework.ai.chat.messages.Message toAiMessage(Message msg) {
-        MessageRole role = msg.getRole();
-        if (role == MessageRole.USER) {
-            return new UserMessage(msg.getContent());
-        } else if (role == MessageRole.ASSISTANT) {
-            return new AssistantMessage(msg.getContent());
-        } else {
-            // SYSTEM / TOOL（V1 简单处理，统一用 SystemMessage）
-            return new SystemMessage(msg.getContent());
-        }
+        return switch (msg.getRole()) {
+            case USER      -> new UserMessage(msg.getContent());
+            case ASSISTANT -> new AssistantMessage(msg.getContent());
+            case SYSTEM    -> new SystemMessage(msg.getContent());
+            case TOOL      -> null;   // V1 暂不注入 TOOL
+        };
     }
 
     // ============================================
