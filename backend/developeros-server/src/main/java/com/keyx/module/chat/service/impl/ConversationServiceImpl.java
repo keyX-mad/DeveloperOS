@@ -1,5 +1,7 @@
 package com.keyx.module.chat.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.keyx.common.exception.BusinessException;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 /**
  * 会话 Service 实现
@@ -25,6 +26,9 @@ import java.util.List;
  */
 @Service
 public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Conversation> implements ConversationService {
+
+    /** 当前实体对应的表名（V1 临时方案：业务代码手动传） */
+    private static final String TABLE_NAME = "conversation";
 
     @Autowired
     private ConversationMapper conversationMapper;
@@ -51,24 +55,12 @@ public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Con
 
     @Override
     public Page<Conversation> list(Long userId, int current, int size) {
-        // ⚠️ Workaround：MyBatis-Plus 3.5.5+ + MyBatis 3.5.16 OGNL sandbox 不兼容
-        // - records 用 @Select 手写 SQL（selectList 触发 OGNL 走不通）
-        // - total 用链式 lambdaQuery().count()（链式走不同代码路径，绕开 OGNL）
-        long offset = (long) (current - 1) * size;
-
-        // 1. 查当前页数据（@Select 手写，selectList 触发 OGNL 走不通）
-        List<Conversation> records = conversationMapper.selectByUserIdPaged(userId, size, offset);
-
-        // 2. 查总数（链式 .count() 能用！比 @Select 简洁）
-        long total = lambdaQuery()
-                .eq(Conversation::getUserId, userId)
-                .count();
-
-        // 3. 组装 Page
         Page<Conversation> page = new Page<>(current, size);
-        page.setRecords(records);
-        page.setTotal(total);
-        return page;
+        LambdaQueryWrapper<Conversation> wrapper = Wrappers.lambdaQuery(Conversation.class)
+                .eq(Conversation::getUserId, userId)
+                .orderByDesc(Conversation::getUpdatedAt);
+
+        return conversationMapper.selectPage(page, wrapper);
     }
 
     /**

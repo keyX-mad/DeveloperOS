@@ -1,5 +1,7 @@
 package com.keyx.module.chat.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.keyx.common.exception.BusinessException;
@@ -36,6 +38,9 @@ import java.util.List;
  */
 @Service
 public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> implements MessageService {
+
+    /** 当前实体对应的表名（V1 临时方案：业务代码手动传） */
+    private static final String TABLE_NAME = "message";
 
     @Autowired
     MessageMapper messageMapper;
@@ -250,29 +255,21 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
      * 安全：必校验 userId 归属
      * 排序：按时间正序（聊天从早到晚）
      *
-     * ⚠️ Workaround：MyBatis-Plus 3.5.5 + MyBatis 3.5.16 OGNL sandbox 不兼容
-     * - records 用 @Select 手写 SQL（selectList 会触发 OGNL）
-     * - total 用链式 lambdaQuery().count()（链式走不同代码路径，绕开 OGNL）
+     * 使用 MyBatis-Plus 原生分页查询，避免直接传递链式 Wrapper。
      */
     @Override
     public Page<Message> listByConversation(Long userId, Long conversationId, int current, int size) {
         // 1. 权限校验
         conversationService.getById(userId, conversationId);
 
-        // 2. 查当前页（@Select 手写，selectList 触发 OGNL 走不通）
-        List<Message> records = messageMapper.selectByConversationPaged(conversationId, size, (long) (current - 1) * size);
-
-        // 3. 查总数（链式 .count() 能用！比 @Select 简洁）
-        long total = lambdaQuery()
+        // 2. MyBatis-Plus 原生分页查询
+        Page<Message> page = new Page<>(current, size);
+        LambdaQueryWrapper<Message> wrapper = Wrappers.lambdaQuery(Message.class)
                 .eq(Message::getConversationId, conversationId)
                 .eq(Message::getStatus, MessageStatus.COMPLETED)
-                .count();
+                .orderByAsc(Message::getCreatedAt);
 
-        // 4. 组装 Page
-        Page<Message> page = new Page<>(current, size);
-        page.setRecords(records);
-        page.setTotal(total);
-        return page;
+        return messageMapper.selectPage(page, wrapper);
     }
 
     // ============================================

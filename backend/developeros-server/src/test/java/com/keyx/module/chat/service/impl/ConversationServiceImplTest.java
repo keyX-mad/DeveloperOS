@@ -126,17 +126,22 @@ class ConversationServiceImplTest {
 
     /**
      * 场景：分页查询
-     * 期望：调用 mapper.selectByUserIdPaged（手写 SQL），用 lambdaQuery().count() 算 total
-     * 注：因 MyBatis-Plus selectList 触发 OGNL，records 用 @Select 手写
+     * 期望：调用 MyBatis-Plus BaseMapper.selectPage
      */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     void testList() {
         // Arrange：准备 mock 返回值
         Conversation c1 = buildConversation(1L, 1L);
         Conversation c2 = buildConversation(2L, 1L);
 
-        when(conversationMapper.selectByUserIdPaged(any(Long.class), anyInt(), anyLong()))
-                .thenReturn(Arrays.asList(c1, c2));
+        when(conversationMapper.selectPage(any(Page.class), any()))
+                .thenAnswer(invocation -> {
+                    Page<Conversation> page = invocation.getArgument(0);
+                    page.setRecords(Arrays.asList(c1, c2));
+                    page.setTotal(2L);
+                    return page;
+                });
 
         // Act
         Page<Conversation> result = service.list(1L, 1, 10);
@@ -145,11 +150,13 @@ class ConversationServiceImplTest {
         assertEquals(2, result.getRecords().size());
         assertEquals(1, result.getCurrent());
         assertEquals(10, result.getSize());
+        assertEquals(2, result.getTotal());
 
-        // 验证：手写 SQL 被调用
-        verify(conversationMapper, times(1)).selectByUserIdPaged(1L, 10, 0L);
+        ArgumentCaptor<Page> pageCaptor = ArgumentCaptor.forClass(Page.class);
+        verify(conversationMapper, times(1)).selectPage(pageCaptor.capture(), any());
+        assertEquals(1, pageCaptor.getValue().getCurrent());
+        assertEquals(10, pageCaptor.getValue().getSize());
     }
-
     // ============================================
     // getById 方法测试（3 个场景，含安全测试）
     // ============================================

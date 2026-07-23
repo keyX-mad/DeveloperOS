@@ -7,6 +7,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import com.keyx.module.growth.exception.GrowthException;
 
 @RestControllerAdvice
 @Slf4j
@@ -42,5 +43,11 @@ public class GlobalExceptionHandler {
     public R<?> handleUnknown(Exception e) {
         log.error("系统异常", e);
         return R.fail(500, "服务器内部错误");
+    }
+
+    @ExceptionHandler(GrowthException.class)
+    public R<?> handleGrowth(GrowthException e) {
+        log.warn("Growth 业务异常：code={}, message={}", e.getCode(), e.getMessage());
+        return R.fail(e.getCode(), e.getMessage());
     }
 }

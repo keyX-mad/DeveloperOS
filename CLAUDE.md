@@ -180,7 +180,7 @@ subject: 中文或英文简短描述
 | `module.chat`             | ✅ 已完成（端到端验证通过 20/20） | AI 对话（多轮 / SSE / Spring AI / Prompt 组装） |
 | `module.memory`           | 待开发      | 长期记忆提取与检索                      |
 | `module.knowledge`        | 待开发      | RAG 文档/切片/Embedding/检索           |
-| `module.growth`           | 待开发      | 学习目标 / 任务 / 成长日志              |
+| `module.growth`           | ✅ 已完成（端到端验证 12/12） | 学习目标 / 任务 / 成长日志 / 进度自动重算 / 状态机 |
 
 ---
 
@@ -255,6 +255,8 @@ docker compose -f docker/docker-compose.yml build backend
 
 | 日期         | 变更内容                                                                                                                          |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-23   | **Growth 模块完成 + 端到端 12/12**：学习目标 + 任务 + 成长日志（28 个文件）。核心机制：① 进度自动重算（TaskService.updateStatus → GoalService.recomputeProgress）；② 目标自动完成（100% + active 自动 mark completed）；③ 状态机校验（COMPLETED 终态，业务码 1705）；④ 用户隔离 + 复合外键保护；⑤ 级联删除 + SET NULL。修复 bug：`@MapperScan` 缺 growth 包 → 改用通配符 `com.keyx.module.*.mapper`。详见 `backend/developeros-server/CLAUDE.md` §四 模块 growth。 |
+| 2026-07-22   | **MyBatis-Plus OGNL 完美解决**：用 `Wrappers.lambdaQuery(Entity.class)` + `mapper.selectPage()` 替代所有手写 `@Select` SQL。Chat 模块 mapper 完全空，13/13 测试通过。pom 用 `mybatis-plus-spring-boot3-starter` 3.5.5。详见 `backend/developeros-server/CLAUDE.md` §9.1。 |
 | 2026-07-20   | **Chat 模块完成 + 端到端验证通过 20/20**：26 个文件 + 15 项 Review 修复 + 2 个 P0 bug 修复（`created_at` NOT NULL + MyBatis-Plus OGNL 兼容）。锁定版本栈：Spring Boot 3.5.0 + MyBatis-Plus 3.5.5 + MyBatis 3.5.16 + Java 21 + Spring AI 1.0.3。详见 `backend/developeros-server/CLAUDE.md` §9.1 / §9.7。 |
 | 2026-07-18   | 初始化根级 CLAUDE.md，新增 Mermaid 仓库结构图与模块索引；建立 `.claude/index.json` 覆盖率与缺口清单。                              |
 | 2026-07-17   | Auth 模块完成（注册、登录、JWT、过滤器、全局异常、统一响应），详见 `everyday update/2026-07-17-auth-module-completed.md`。         |

@@ -100,26 +100,14 @@
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
 
-        <!-- MyBatis-Plus（Spring Boot 3 专用 starter）：MyBatis 增强工具，提供通用 CRUD、分页插件、代码生成器、逻辑删除等能力，简化持久层开发 -->
+        <!-- MyBatis-Plus Spring Boot 3 官方 starter（v3.5.5）
+             自动包含：mybatis-plus 3.5.5 + mybatis-spring 3.0.5 + mybatis-plus-spring-boot-autoconfigure
+             用 starter 替代手动引入，避免依赖冲突和版本不一致
+             v3.5.5 保留旧包路径（com.baomidou.mybatisplus.extension.service.impl）-->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus</artifactId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <version>3.5.5</version>
-        </dependency>
-
-        <!-- MyBatis-Plus 扩展包：包含分页插件（PaginationInnerInterceptor）、动态表名、SQL 注入器等高级功能 -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-extension</artifactId>
-            <version>3.5.5</version>
-        </dependency>
-
-        <!-- MyBatis-Spring 桥接包：提供 @MapperScan 注解和 MapperScannerRegistrar，
-             mybatis-plus 3.5.9 聚合包未传递此依赖，需要显式引入才能用 @MapperScan -->
-        <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis-spring</artifactId>
-            <version>3.0.5</version>
         </dependency>
 
         <!-- Spring Security：认证授权框架，提供登录校验、密码加密（BCryptPasswordEncoder）、权限控制、CSRF 防护等安全能力 -->
