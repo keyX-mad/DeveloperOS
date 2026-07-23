@@ -19,11 +19,7 @@ import javax.sql.DataSource;
  * 解决 Spring Boot 3.5 + MyBatis-Plus 的 SqlSessionFactory 缺失问题。
  */
 @Configuration
-@MapperScan({
-    "com.keyx.module.user.mapper",
-    //"com.keyx.module.auth.mapper",
-    "com.keyx.module.chat.mapper"
-})
+@MapperScan("com.keyx.module.*.mapper")
 public class MybatisPlusConfig {
 
     /**

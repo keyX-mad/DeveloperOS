@@ -1,7 +1,11 @@
 package com.keyx.module.chat.prompt;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.keyx.module.chat.entity.Message;
 import com.keyx.module.chat.enums.MessageRole;
+import com.keyx.module.chat.enums.MessageStatus;
 import com.keyx.module.chat.mapper.MessageMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -76,15 +80,20 @@ public class PromptBuilder {
      * - 按时间正序（聊天从早到晚）
      * - 只取 status=COMPLETED 的（过滤 STREAMING/FAILED/STOPPED 中间态）
      *
-     * ⚠️ Workaround：手写 SQL 绕开 MyBatis-Plus 3.5.5 + MyBatis 3.5.16 OGNL 兼容问题
+     * 使用 MyBatis-Plus 原生分页查询，避免直接传递链式 Wrapper。
      */
     private List<Message> loadHistory(Long conversationId) {
         int size = systemPromptTemplate.getHistorySize();
 
-        // Desc + LIMIT N：手写 SQL（mapper 接口已加 selectRecentCompletedByConversation）
-        List<Message> recent = messageMapper.selectRecentCompletedByConversation(conversationId, size);
+        Page<Message> page = new Page<>(1, size, false);
+        LambdaQueryWrapper<Message> wrapper = Wrappers.lambdaQuery(Message.class)
+                .eq(Message::getConversationId, conversationId)
+                .eq(Message::getStatus, MessageStatus.COMPLETED)
+                .orderByDesc(Message::getCreatedAt);
 
-        // 反转成时间正序（早 → 晚）
+        List<Message> recent = messageMapper.selectPage(page, wrapper).getRecords();
+
+        // 反转成时间正序（旧 -> 新）
         Collections.reverse(recent);
         return recent;
     }
